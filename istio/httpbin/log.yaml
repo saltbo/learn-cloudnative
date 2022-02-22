@@ -1,0 +1,11 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: frontend-logging
+spec:
+  selector:
+    matchLabels:
+      app: httpbin
+  accessLogging:
+    - providers:
+        - name: logfile

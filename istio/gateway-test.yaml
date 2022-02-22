@@ -1,0 +1,65 @@
+# kubectl create deploy httpbin --image=docker.io/kennethreitz/httpbin && kubectl expose deployment httpbin --port=8000 --target-port 80
+# kubectl create deploy echoserver --image=k8s.gcr.io/echoserver:1.4 && kubectl expose deployment echoserver --port=8080
+
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: httpbin-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "httpbin.localhost"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: httpbin1
+spec:
+  hosts:
+    - "httpbin.localhost"
+  gateways:
+    - httpbin-gateway
+  http:
+    - route:
+        - destination:
+            host: httpbin
+            port:
+              number: 8000
+    - match:
+        - uri:
+            exact: /get
+        - uri:
+            prefix: /delay
+      route:
+        - destination:
+            host: httpbin
+            port:
+              number: 8000
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: httpbin2
+spec:
+  hosts:
+    - "httpbin.localhost"
+  gateways:
+    - httpbin-gateway
+  http:
+    - match:
+        - uri:
+            exact: /echo
+        - uri:
+            prefix: /echo-server
+      route:
+        - destination:
+            host: echoserver
+            port:
+              number: 8080
