@@ -1,18 +1,18 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: ServiceEntry
 metadata:
- name: external-svc-httpbin
+ name: httpbin
 spec:
  hosts:
-   - www.baidu.com
+   - httpbin2.yanbo.svc.cluster.local
  location: MESH_EXTERNAL
  ports:
-   - number: 80
+   - number: 8000
      name: http
      protocol: HTTP
 #  resolution: DNS
  resolution: STATIC # 静态
  endpoints:
-   - address: 110.242.68.3
+   - address: 172.16.26.242
 #  addresses:
 #    - 110.242.68.3
