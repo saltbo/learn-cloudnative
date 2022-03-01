@@ -1,6 +1,10 @@
 resources:
 - "@type": type.googleapis.com/envoy.config.cluster.v3.Cluster
   name: example_proxy_cluster
+  metadata:
+    filter_metadata:
+      com.acme.widget:
+        cluster: example
   type: STRICT_DNS
   load_assignment:
     cluster_name: example_proxy_cluster
