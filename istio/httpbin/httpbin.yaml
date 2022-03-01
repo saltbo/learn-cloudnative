@@ -58,11 +58,6 @@ spec:
           name: httpbin
           ports:
             - containerPort: 80
-        - image: auto
-          name: istio-proxy
-          volumeMounts:
-            - mountPath: /data/logs
-              name: logs
       volumes:
-        - name: logs
+        - name: log-volume
           emptyDir: {}
