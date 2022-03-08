@@ -74,6 +74,9 @@ static_resources:
               "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
               inline_code: |
                 function envoy_on_request(request_handle)
+                  timestamp = request_handle:timestamp()
+                  request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "sts", timestamp)
+
                   local uri = request_handle:headers():get(":path")
                   local idx = string.find(uri, "?")
                   if idx ~= nil then
@@ -85,6 +88,16 @@ static_resources:
                       cluster = os.getenv("HOME"),
                       env = os.getenv("HOME"),
                   })
+                end
+                
+                function envoy_on_response(response_handle)
+                  sts = response_handle:streamInfo():dynamicMetadata():get("envoy.filters.http.lua")["sts"]
+                  ets = response_handle:timestamp()
+                  response_handle:logInfo(sts)
+                  response_handle:logInfo(ets)
+                  response_handle:logInfo(ets-sts)
+                  ts = response_handle:timestamp()
+                  response_handle:logInfo(string.format("%s.%sZ", os.date("%Y-%m-%dT%H:%M:%S",ts/1000), string.sub(tostring(ts), string.len(ts)-2)))
                 end
           - name: envoy.filters.http.router
           route_config:
@@ -98,6 +111,7 @@ static_resources:
                 route:
                   host_rewrite_literal: saltbo.cn
                   cluster: saltbo
+# 2021-09-07T09:47:08.911+08:00
   
   clusters:
   - name: saltbo

@@ -59,5 +59,7 @@ spec:
           ports:
             - containerPort: 80
       volumes:
+        - name: sidecar-sre
+          emptyDir: {}
         - name: log-volume
           emptyDir: {}
