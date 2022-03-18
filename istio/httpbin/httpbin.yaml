@@ -58,8 +58,7 @@ spec:
           name: httpbin
           ports:
             - containerPort: 80
-      volumes:
-        - name: sidecar-sre
-          emptyDir: {}
-        - name: log-volume
-          emptyDir: {}
+          resources:
+            limits: 
+              cpu: "1"
+              memory: "100M"
