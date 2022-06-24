@@ -6,7 +6,6 @@ services:
     container_name: envoy
     volumes:
       - "./configs:/etc/envoy"
-    network_mode: "host"
     ports:
       - "9901:9901"
-      - "8080:8080"
+      - "8081:8081"

@@ -4,15 +4,15 @@ metadata:
  name: httpbin
 spec:
  hosts:
-   - httpbin2.yanbo.svc.cluster.local
+   - httpbin
  location: MESH_EXTERNAL
  ports:
-   - number: 8000
+   - number: 80
      name: http
      protocol: HTTP
 #  resolution: DNS
  resolution: STATIC # 静态
  endpoints:
-   - address: 172.16.26.242
+   - address: 10.42.0.30
 #  addresses:
 #    - 110.242.68.3
