@@ -8,8 +8,3 @@ services:
     network_mode: host
     volumes:
       - "./configs:/etc/envoy"
-    # ports:
-    #   - "9901:9901"
-    #   - "8000:8000"
-    #   - "8081:8081"
-    #   - "8082:8082"

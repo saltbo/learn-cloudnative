@@ -9,13 +9,13 @@ admin:
 node:
   id: id_1
   cluster: test
-  
+
 static_resources:
   secrets:
   - name: token
     generic_secret:
       secret:
-        inline_string: 112233
+        inline_string: aaaaaan
   - name: hmac
     generic_secret:
       secret:
