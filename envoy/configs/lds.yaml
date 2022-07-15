@@ -1,6 +1,6 @@
 resources:
 - "@type": type.googleapis.com/envoy.config.listener.v3.Listener
-  name: listener_1
+  name: listener_0
   address:
     socket_address:
       address: 0.0.0.0
@@ -23,4 +23,146 @@ resources:
             - match:
                 prefix: "/"
               route:
-                cluster: example_proxy_cluster
+                cluster: localsvc
+
+- "@type": type.googleapis.com/envoy.config.listener.v3.Listener
+  name: listener_1
+  address:
+    socket_address:
+      protocol: TCP
+      address: 0.0.0.0
+      port_value: 8081
+  filter_chains:
+  - filters:
+    - name: envoy.filters.network.http_connection_manager
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+        stat_prefix: ingress_http
+        http_filters:
+        - name: envoy.filters.http.local_ratelimit
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+            stat_prefix: http_local_rate_limiter
+        # - name: envoy.filters.http.wasm
+        #   typed_config:
+        #     "@type": type.googleapis.com/envoy.extensions.filters.http.wasm.v3.Wasm
+        #     config:
+        #       name: "my_plugin"
+        #       vm_config:
+        #         runtime: "envoy.wasm.runtime.v8"
+        #         code:
+        #           local:
+        #             filename: "/etc/envoy/plugins/envoy_wasm_filter.wasm"
+        #         allow_precompiled: true
+        - name: envoy.filters.http.lua
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+            inline_code: |
+              ---Comment
+            source_codes:
+              accesslog.lua:
+                filename: /etc/envoy/plugins/accesslog.lua
+              limit-response-rewrite.lua:
+                filename: /etc/envoy/plugins/limit-response-rewrite.lua
+              
+        - name: envoy.filters.http.router
+        route_config:
+          name: local_route
+          virtual_hosts:
+          - name: saltbo
+            domains: ["*"]
+            routes:
+            - match:
+                prefix: "/"
+              route:
+                host_rewrite_literal: saltbo.cn
+                cluster: localsvc
+            typed_per_filter_config:
+              envoy.filters.http.local_ratelimit:
+                "@type": type.googleapis.com/udpa.type.v1.TypedStruct
+                type_url: type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+                value:
+                  stat_prefix: http_local_rate_limiter
+                  token_bucket:
+                    max_tokens: 10
+                    tokens_per_fill: 10
+                    fill_interval: 60s
+                  filter_enabled:
+                    runtime_key: local_rate_limit_enabled
+                    default_value:
+                      numerator: 100
+                      denominator: HUNDRED
+                  filter_enforced:
+                    runtime_key: local_rate_limit_enforced
+                    default_value:
+                      numerator: 100
+                      denominator: HUNDRED
+                  response_headers_to_add:
+                    - append: true
+                      header:
+                        key: x-local-rate-limit
+                        value: 'true'
+              envoy.filters.http.lua:
+                "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
+                name: limit-response-rewrite.lua
+
+- "@type": type.googleapis.com/envoy.config.listener.v3.Listener
+  name: listener_2
+  address:
+    socket_address:
+      protocol: TCP
+      address: 0.0.0.0
+      port_value: 8000
+  filter_chains:
+  - filters:
+    - name: envoy.filters.network.http_connection_manager
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+        stat_prefix: ingress_http
+        http_filters:
+        - name: envoy.filters.http.oauth2
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.http.oauth2.v3.OAuth2
+            config:
+              token_endpoint:
+                cluster: oauth
+                uri: id-ontest.lixiang.com/api/token
+                timeout: 3s
+              authorization_endpoint: https://id-ontest.lixiang.com/api/auth
+              redirect_uri: "http://%REQ(:authority)%/callback"
+              redirect_path_matcher:
+                path:
+                  exact: /callback
+              signout_path:
+                path:
+                  exact: /signout
+              credentials:
+                client_id: 51kLNAWu8UBL2rawWprRfs
+                token_secret:
+                  name: token
+                hmac_secret:
+                  name: hmac
+              # (Optional): defaults to 'user' scope if not provided
+              auth_scopes:
+              - openid
+              - offline_access
+              # - istio:resource:read 
+              # - istio:resource:op
+              # - user
+              # - openid
+              # - email
+              # (Optional): set resource parameter for Authorization request
+              resources:
+              - 18dxZAta61vVY601IWsTC2
+              # - http://example.com
+        - name: envoy.filters.http.router
+        route_config:
+          virtual_hosts:
+          - name: service
+            domains: ["*"]
+            routes:
+            - match:
+                prefix: "/"
+              route:
+                cluster: localsvc
+                timeout: 5s

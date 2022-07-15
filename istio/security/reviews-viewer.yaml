@@ -1,0 +1,16 @@
+apiVersion: "security.istio.io/v1beta1"
+kind: "AuthorizationPolicy"
+metadata:
+  name: "reviews-viewer"
+  namespace: yanbo
+spec:
+  selector:
+    matchLabels:
+      app: reviews
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/yanbo/sa/bookinfo-productpage"]
+    to:
+    - operation:
+        methods: ["GET"]

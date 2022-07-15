@@ -1,0 +1,16 @@
+apiVersion: "security.istio.io/v1beta1"
+kind: "AuthorizationPolicy"
+metadata:
+  name: "ratings-viewer"
+  namespace: yanbo
+spec:
+  selector:
+    matchLabels:
+      app: ratings
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/yanbo/sa/bookinfo-reviews"]
+    to:
+    - operation:
+        methods: ["GET"]

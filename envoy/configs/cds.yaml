@@ -15,3 +15,37 @@ resources:
             socket_address:
               address: service1
               port_value: 8080
+
+- "@type": type.googleapis.com/envoy.config.cluster.v3.Cluster
+  name: localsvc
+  type: LOGICAL_DNS
+  dns_lookup_family: V4_ONLY
+  load_assignment:
+    cluster_name: localsvc
+    endpoints:
+    - lb_endpoints:
+      - endpoint:
+          address:
+            socket_address:
+              address: host.lima.internal
+              port_value: 8000
+
+- "@type": type.googleapis.com/envoy.config.cluster.v3.Cluster
+  name: oauth
+  connect_timeout: 5s
+  type: LOGICAL_DNS
+  lb_policy: ROUND_ROBIN
+  load_assignment:
+    cluster_name: oauth
+    endpoints:
+    - lb_endpoints:
+      - endpoint:
+          address:
+            socket_address:
+              address: id-ontest.lixiang.com
+              port_value: 443
+  transport_socket:
+    name: envoy.transport_sockets.tls
+    typed_config:
+      "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+      sni: id-ontest.lixiang.com

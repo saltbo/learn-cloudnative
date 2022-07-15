@@ -3,9 +3,13 @@ version: "3"
 services:
   envoy:
     image: envoyproxy/envoy:v1.21-latest
+    # command: ["envoy", "-c", "/etc/envoy/envoy.yaml", "--log-level", "debug", "--component-log-level", "upstream:debug"]
     container_name: envoy
+    network_mode: host
     volumes:
       - "./configs:/etc/envoy"
-    ports:
-      - "9901:9901"
-      - "8081:8081"
+    # ports:
+    #   - "9901:9901"
+    #   - "8000:8000"
+    #   - "8081:8081"
+    #   - "8082:8082"
