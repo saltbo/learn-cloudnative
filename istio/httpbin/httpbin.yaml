@@ -25,15 +25,15 @@ kind: Service
 metadata:
   name: httpbin
   labels:
-    app: httpbin
+    appName: httpbin
     service: httpbin
 spec:
   ports:
-    - name: http
-      port: 8000
+    - name: "80"
+      port: 80
       targetPort: 80
   selector:
-    app: httpbin
+    appName: httpbin
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -43,12 +43,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: httpbin
+      appName: httpbin
       version: v1
   template:
     metadata:
       labels:
-        app: httpbin
+        appName: httpbin
         version: v1
     spec:
       serviceAccountName: httpbin

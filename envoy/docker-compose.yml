@@ -2,8 +2,8 @@ version: "3"
 
 services:
   envoy:
-    image: envoyproxy/envoy:v1.21-latest
-    # command: ["envoy", "-c", "/etc/envoy/envoy.yaml", "--log-level", "debug", "--component-log-level", "upstream:debug"]
+    image: envoyproxy/envoy-dev:8537d2a29265e61aaa0349311e6fc5d592659b08
+    command: ["envoy", "-c", "/etc/envoy/envoy.yaml", "--log-level", "debug"]
     container_name: envoy
     network_mode: host
     volumes:

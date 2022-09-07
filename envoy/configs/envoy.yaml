@@ -10,16 +10,16 @@ node:
   id: id_1
   cluster: test
 
-static_resources:
-  secrets:
-  - name: token
-    generic_secret:
-      secret:
-        inline_string: aaaaaan
-  - name: hmac
-    generic_secret:
-      secret:
-        inline_string: aavvcc
+# static_resources:
+#   secrets:
+#   - name: token
+#     generic_secret:
+#       secret:
+#         inline_string: 112233
+#   - name: hmac
+#     generic_secret:
+#       secret:
+#         inline_string: 112233
 
 dynamic_resources:
   cds_config:
