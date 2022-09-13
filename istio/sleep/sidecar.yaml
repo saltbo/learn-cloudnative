@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: sleep
+spec:
+  workloadSelector:
+    labels:
+      app: sleep
+  outboundTrafficPolicy:
+    mode: REGISTRY_ONLY
+  egress:
+  - port:
+      number: 443
+      protocol: https
+      name: outer-https
+    hosts:
+      - "*/*.com"
+  - hosts:
+      - "./nginx.default.svc.cluster.local"
+      - "*/httpbin.default.svc.cluster.local"

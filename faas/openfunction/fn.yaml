@@ -3,8 +3,8 @@ kind: Function
 metadata:
   name: function-sample
 spec:
-  version: "v2.0.0"
-  image: "openfunctiondev/sample-go-func:v1"
+  version: "v2.0.1"
+  image: "saltbo/openfunction-sample-go-func:v1"
   imageCredentials:
     name: push-secret
   port: 8080 # default to 8080
@@ -14,11 +14,10 @@ spec:
       FUNC_NAME: "HelloWorld"
       FUNC_CLEAR_SOURCE: "true"
     srcRepo:
-      url: "git@github.com:saltbo/openfunction-samples.git"
+      #url: "git@github.com:saltbo/openfunction-samples.git"
+      url: "https://github.com/saltbo/openfunction-samples.git"
       sourceSubPath: "functions/knative/hello-world-go"
-      revision: "main"
-      credentials:
-         name: git-repo-secret
+      revision: "e78ddf4"
   serving:
     template:
       containers:
