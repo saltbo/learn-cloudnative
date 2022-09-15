@@ -6,15 +6,15 @@ spec:
   workloadSelector:
     labels:
       app: sleep
-  outboundTrafficPolicy:
-    mode: REGISTRY_ONLY
+  # outboundTrafficPolicy:
+  #   mode: REGISTRY_ONLY
   egress:
-  - port:
-      number: 443
-      protocol: https
-      name: outer-https
-    hosts:
-      - "*/*.com"
+  # - port:
+  #     number: 443
+  #     protocol: https
+  #     name: outer-https
+  #   hosts:
+  #     - "*/*.com"
   - hosts:
-      - "./nginx.default.svc.cluster.local"
-      - "*/httpbin.default.svc.cluster.local"
+      - "./httpbin.default.svc.cluster.local"
+      # - "./nginx.default.svc.cluster.local"
