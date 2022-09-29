@@ -5,8 +5,22 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: httpbin
+      app: httpbin 
+  action: ALLOW
   rules:
   - from:
     - source:
-        requestPrincipals: ["*"]
+        principals: ["cluster.local/ns/default/sa/sleep"]
+    - source:
+        namespaces: ["test"]
+    to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/info*"]
+    - operation:
+        methods: ["POST"]
+        paths: ["/data"]
+    when:
+    - key: request.auth.claims[iss]
+      values: ["https://accounts.google.com"]
+

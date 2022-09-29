@@ -1,3 +1,15 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-conn
+  namespace: default
+type: Opaque
+stringData:
+  endpoint: mysql.infra-system.svc.cluster.local
+  port: "3306"
+  password: admin
+  username: root
+
 ---
 apiVersion: mysql.sql.crossplane.io/v1alpha1
 kind: ProviderConfig
@@ -11,9 +23,3 @@ spec:
       name: db-conn
   # tls one of preferred(default), skip-verify, or true
   tls: preferred
-
-# kubectl create secret generic db-conn \
-#   --from-literal=username=root \
-#   --from-literal=password='admin' \
-#   --from-literal=endpoint=mysql.infra-system.svc.cluster.local \
-#   --from-literal=port=3306
