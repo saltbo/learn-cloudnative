@@ -1,0 +1,20 @@
+apiVersion: helm.crossplane.io/v1beta1
+kind: Release
+metadata:
+  name: wordpress-example
+spec:
+  forProvider:
+    chart:
+      name: wordpress
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.2.5 
+    namespace: wordpress
+    values:
+      service:
+        type: ClusterIP
+    set:
+      - name: param1
+        value: value2
+
+  providerConfigRef:
+    name: helm-provider
