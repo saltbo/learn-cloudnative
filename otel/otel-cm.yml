@@ -1,0 +1,118 @@
+apiVersion: v1
+data:
+  relay: |
+    exporters:
+      logging: 
+        loglevel: debug
+      loki:
+        endpoint: http://loki:3100/loki/api/v1/push
+    extensions:
+      health_check: {}
+      memory_ballast: {}
+    processors:
+      attributes:
+        actions:
+        - action: insert
+          key: loki.resource.labels
+          value: okind, oname
+        - action: insert
+          key: loki.attribute.labels
+          value: namespace, reason
+
+        - action: insert
+          key: namespace
+          from_attribute: k8s.namespace.name
+        - action: insert
+          key: reason
+          from_attribute: k8s.event.reason
+
+      resource:
+        attributes:
+        - action: insert
+          key: okind
+          from_attribute: k8s.object.kind
+        - action: insert
+          key: oname
+          from_attribute: k8s.object.name
+
+
+      batch: {}
+      memory_limiter:
+        check_interval: 5s
+        limit_mib: 409
+        spike_limit_mib: 128
+    receivers:
+      k8s_events:
+      jaeger:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:14250
+          thrift_compact:
+            endpoint: 0.0.0.0:6831
+          thrift_http:
+            endpoint: 0.0.0.0:14268
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+      prometheus:
+        config:
+          scrape_configs:
+          - job_name: opentelemetry-collector
+            scrape_interval: 10s
+            static_configs:
+            - targets:
+              - ${MY_POD_IP}:8888
+      zipkin:
+        endpoint: 0.0.0.0:9411
+    service:
+      extensions:
+      - health_check
+      - memory_ballast
+      pipelines:
+        logs:
+          exporters:
+          - logging
+          - loki
+          receivers:
+          - k8s_events
+          processors:
+          - resource
+          - attributes
+        metrics:
+          exporters:
+          - logging
+          processors:
+          - memory_limiter
+          - batch
+          receivers:
+          - otlp
+          - prometheus
+        traces:
+          exporters:
+          - logging
+          processors:
+          - memory_limiter
+          - batch
+          receivers:
+          - otlp
+          - jaeger
+          - zipkin
+      telemetry:
+        metrics:
+          address: 0.0.0.0:8888
+kind: ConfigMap
+metadata:
+  annotations:
+    meta.helm.sh/release-name: otel-collector
+    meta.helm.sh/release-namespace: kiae-system
+  labels:
+    app.kubernetes.io/instance: otel-collector
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: opentelemetry-collector
+    app.kubernetes.io/version: 0.60.0
+    helm.sh/chart: opentelemetry-collector-0.32.0
+  name: otel-collector-opentelemetry-collector
+  namespace: kiae-system

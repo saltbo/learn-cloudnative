@@ -1,0 +1,66 @@
+# kubectl create secret docker-registry tutorial-registry-credentials \
+#     --docker-username=my-dockerhub-username \
+#     --docker-password=my-dockerhub-password \
+#     --docker-server=https://index.docker.io/v1/ \
+#     --namespace default
+
+# kubectl create secret generic git-ssh-auth \
+#     --type=kubernetes.io/ssh-auth \
+#     --from-file=ssh-privatekey=$HOME/.ssh/id_rsa \
+#     --namespace default
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tutorial-service-account
+  namespace: default
+secrets:
+- name: tutorial-registry-credentials
+imagePullSecrets:
+- name: tutorial-registry-credentials
+
+---
+apiVersion: kpack.io/v1alpha2
+kind: ClusterStore
+metadata:
+  name: default
+spec:
+  sources:
+  - image: gcr.io/paketo-buildpacks/go
+  - image: gcr.io/paketo-buildpacks/java
+  - image: gcr.io/paketo-buildpacks/nodejs
+
+---
+apiVersion: kpack.io/v1alpha2
+kind: ClusterStack
+metadata:
+  name: base
+spec:
+  id: "io.buildpacks.stacks.bionic"
+  buildImage:
+    image: "paketobuildpacks/build:base-cnb"
+  runImage:
+    image: "paketobuildpacks/run:base-cnb"
+
+---
+apiVersion: kpack.io/v1alpha2
+kind: Builder
+metadata:
+  name: my-builder
+  namespace: default
+spec:
+  serviceAccountName: tutorial-service-account
+  tag: saltbo/kpack-builder
+  stack:
+    name: base
+    kind: ClusterStack
+  store:
+    name: default
+    kind: ClusterStore
+  order:
+  - group:
+    - id: paketo-buildpacks/go
+  - group:
+    - id: paketo-buildpacks/java
+  - group:
+    - id: paketo-buildpacks/nodejs
