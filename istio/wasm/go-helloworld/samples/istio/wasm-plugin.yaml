@@ -1,0 +1,7 @@
+apiVersion: extensions.istio.io/v1alpha1
+kind: WasmPlugin
+metadata:
+  name: hello-world
+  namespace: default
+spec:
+  url: http://host.lima.internal:8000/main.wasm
