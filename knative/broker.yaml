@@ -1,0 +1,40 @@
+apiVersion: eventing.knative.dev/v1
+kind: Broker
+metadata:
+  annotations:
+    # case-sensitive
+    eventing.knative.dev/broker.class: Kafka
+    # Optional annotation to point to an externally managed kafka topic:
+    kafka.eventing.knative.dev/external.topic: "dapr-sample-ps"
+  name: default
+  namespace: default
+spec:
+  # Configuration specific to this broker.
+  config:
+    apiVersion: v1
+    kind: ConfigMap
+    name: kafka-broker-config
+    namespace: knative-eventing
+  # Optional dead letter sink, you can specify either:
+  #  - deadLetterSink.ref, which is a reference to a Callable
+  #  - deadLetterSink.uri, which is an absolute URI to a Callable (It can potentially be out of the Kubernetes cluster)
+  # delivery:
+  #   deadLetterSink:
+  #     ref:
+  #       apiVersion: serving.knative.dev/v1
+  #       kind: Service
+  #       name: dlq-service
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-broker-config
+  namespace: knative-eventing
+data:
+  # Number of topic partitions
+  default.topic.partitions: "10"
+  # Replication factor of topic messages.
+  default.topic.replication.factor: "3"
+  # A comma separated list of bootstrap servers. (It can be in or out the k8s cluster)
+  bootstrap.servers: "172.21.208.75:9092,172.21.208.74:9092,172.21.208.76:9092"
