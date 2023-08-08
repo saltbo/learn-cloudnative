@@ -1,0 +1,17 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: "httpbinn-allow"
+spec:
+  selector:
+    matchLabels:
+      istio: ingressgateway
+  action: ALLOW
+  rules:
+  - to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/bearer", "/get"]
+    when:
+    - key: request.auth.claims[cli]
+      values: ["4Eu3RUjXtKFpKkqB0fvcvw"]

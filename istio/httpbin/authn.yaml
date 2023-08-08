@@ -1,0 +1,16 @@
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: "jwt-example"
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      istio: ingressgateway
+  jwtRules:
+  - issuer: "https://id-ontest.lixiang.com/api/discov/4Eu3RUjXtKFpKkqB0fvcvw"
+    jwksUri: "https://id-ontest.lixiang.com/api/pubkeys?client_id=4Eu3RUjXtKFpKkqB0fvcvw"
+    # audiences:
+    # - 1tgaIIidRKwwENOBolVM91
+    forwardOriginalToken: true
+    outputPayloadToHeader: "X-JWT-PAYLOAD"

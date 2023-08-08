@@ -1,0 +1,41 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: httpbin-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 8080
+        name: http
+        protocol: HTTP
+      hosts:
+        - "router.localhost"
+        - "*.localhost"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: httpbin
+spec:
+  hosts:
+    - "router.localhost"
+    - "httpbin.localhost"
+  gateways:
+    - httpbin-gateway
+  http:
+    - match: 
+        # PathStyle
+        - authority:
+            prefix: "router.localhost"
+          uri:
+            prefix: "/httpbin"
+        # HostStyle
+        - authority:
+            prefix: "httpbin.localhost"
+      rewrite:
+        uri: /get
+      route:
+        - destination:
+            host: httpbin
