@@ -2,6 +2,7 @@ apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: "httpbinn-allow"
+  namespace: istio-system
 spec:
   selector:
     matchLabels:
@@ -10,7 +11,7 @@ spec:
   rules:
   - to:
     - operation:
-        methods: ["GET"]
+        methods: ["GET", "HEAD"]
         paths: ["/bearer", "/get"]
     when:
     - key: request.auth.claims[cli]

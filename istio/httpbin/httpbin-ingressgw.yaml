@@ -26,6 +26,11 @@ spec:
     - httpbin-gateway
   http:
     - match: 
+      - method: 
+          exact: "HEAD"
+      directResponse:
+        status: 200
+    - match: 
         # PathStyle
         - authority:
             prefix: "router.localhost"
@@ -35,7 +40,7 @@ spec:
         - authority:
             prefix: "httpbin.localhost"
       rewrite:
-        uri: /get
+        uri: /
       route:
         - destination:
             host: httpbin
